@@ -1,0 +1,11 @@
+include LICENSE AUTHORS README CHANGES
+recursive-include docs *
+recursive-include lantz_qt/*
+
+include *.txt
+include lantz_qt/fedora.png
+include .travis.yml
+
+global-exclude *.pyc *.pyo .DS_Store
+prune docs/_build
+prune docs/_themes/.git

@@ -20,6 +20,7 @@ from lantz_core.flock import initialize_many, finalize_many
 
 from .connect import connect_setup, connect_driver, connect_feat
 from .widgets import DriverTestWidget, SetupTestWidget
+from .objwrapper import QDriver
 from .utils.qt import QtCore, QtGui, SuperQObject, MetaQObject
 from .log import LOGGER
 
@@ -279,7 +280,7 @@ def start_test_app(target, width=500, qapp_or_args=None):
         qapp = QtGui.QApplication(qapp_or_args or [''])
         qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
 
-    if isinstance(target, Driver):
+    if isinstance(target, (Driver, QDriver)):
         main = DriverTestWidget(None, target)
     else:
         main = SetupTestWidget(None, target)

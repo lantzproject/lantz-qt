@@ -47,7 +47,7 @@ class DriverTestWidget(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
 
         label = QtGui.QLabel()
-        label.setText(str(target))
+        label.setText('%s (%s)' % (target.name, target.__class__.__qualname__))
         layout.addWidget(label)
 
         recall = QtGui.QPushButton()

@@ -12,9 +12,16 @@
 from .utils.qt import QtCore
 
 
+class QDriver(QtCore.QObject):
+    pass
+
+
 def wrap_driver(wrapped_obj, parent_qobj=None):
 
-    class QObj(QtCore.QObject):
+    SUFFIX = '_changed'
+    PYSUFFIX = '_py_changed'
+
+    class QObj(QDriver):
 
         def __init__(self, obj, parent):
             super().__init__(parent)
@@ -29,20 +36,44 @@ def wrap_driver(wrapped_obj, parent_qobj=None):
         # for drivers that do not derive from Driver.
 
         def __getattr__(self, item):
+            print(item, getattr(self.wrapped_obj, item))
+            if item in self.__dict__:
+                return getattr(self, item)
+
             return getattr(self.wrapped_obj, item)
 
         for feat_name in wrapped_obj.feats.keys():
-            locals()[feat_name + '_py_on_changed'] = getattr(wrapped_obj, feat_name + '_on_changed')
-            locals()[feat_name + '_on_changed'] = QtCore.pyqtSignal(object, object, object)
+            #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
 
         for feat_name in wrapped_obj.dictfeats.keys():
-            locals()[feat_name + '_py_on_changed'] = getattr(wrapped_obj, feat_name + '_on_changed')
-            locals()[feat_name + '_on_changed'] = QtCore.pyqtSignal(object, object)
-
+            #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
 
     obj = QObj(wrapped_obj, parent_qobj)
 
-    for feat_name in wrapped_obj.lantz_features.keys():
-        getattr(obj, feat_name + '_on_changed').connect(lambda x: getattr(obj, feat_name + '_py_on_changed').emit(x))
-
     return obj
+
+
+def wrap_driver_cls(wrapped_cls):
+
+    SUFFIX = '_changed'
+    PYSUFFIX = '_py_changed'
+
+    class WrappedCLS(QDriver, wrapped_cls):
+
+        # Qt Signals need to be added to the class before it is created.
+        # We loop through all members of the class and add a changed event
+        # for each Feat/DictFeat.
+
+        for feat_name in wrapped_cls._lantz_feats.keys():
+            #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
+
+        for feat_name in wrapped_cls._lantz_dictfeats.keys():
+            #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
+
+    WrappedCLS.__name__ = 'Qt' + wrapped_cls.__name__
+
+    return WrappedCLS

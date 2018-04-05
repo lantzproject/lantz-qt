@@ -29,10 +29,18 @@ setup(name='lantz_qt',
       include_package_data=True,
       packages=['lantz_qt',
                 'lantz_qt.blocks',
-                'lantz_qt.utils'],
+                'lantz_qt.utils',
+                'lantz_qt.widgets'],
       zip_safe=False,
       platforms='any',
-      entry_points={},
+      entry_points={
+          'console_scripts': [
+              'lantz-qtdemo = lantz_qt.__main__:main'
+          ],
+          'lantz_subcommands': [
+              'qtdemo = lantz_qt.__main__:main'
+          ]
+      },
       classifiers=[
            'Development Status :: 4 - Beta',
            'Intended Audience :: Developers',

@@ -11,3 +11,4 @@
 
 
 from .app import start_test_app
+from .utils.qt import QtCore, QtGui, SuperQObject, MetaQObject

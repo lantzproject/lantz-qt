@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from .utils.qt import QtCore
+from .utils.qt import QtCore, SuperQObject
 
 
 class QDriver(QtCore.QObject):
@@ -36,7 +36,6 @@ def wrap_driver(wrapped_obj, parent_qobj=None):
         # for drivers that do not derive from Driver.
 
         def __getattr__(self, item):
-            print(item, getattr(self.wrapped_obj, item))
             if item in self.__dict__:
                 return getattr(self, item)
 
@@ -44,11 +43,11 @@ def wrap_driver(wrapped_obj, parent_qobj=None):
 
         for feat_name in wrapped_obj.feats.keys():
             #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
-            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
 
         for feat_name in wrapped_obj.dictfeats.keys():
             #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
-            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
 
     obj = QObj(wrapped_obj, parent_qobj)
 
@@ -60,7 +59,7 @@ def wrap_driver_cls(wrapped_cls):
     SUFFIX = '_changed'
     PYSUFFIX = '_py_changed'
 
-    class WrappedCLS(QDriver, wrapped_cls):
+    class WrappedCLS(wrapped_cls, SuperQObject):
 
         # Qt Signals need to be added to the class before it is created.
         # We loop through all members of the class and add a changed event
@@ -68,11 +67,11 @@ def wrap_driver_cls(wrapped_cls):
 
         for feat_name in wrapped_cls._lantz_feats.keys():
             #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
-            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
 
         for feat_name in wrapped_cls._lantz_dictfeats.keys():
             #locals()[feat_name + PYSUFFIX] = getattr(wrapped_obj, feat_name + SUFFIX)
-            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object)
+            locals()[feat_name + SUFFIX] = QtCore.pyqtSignal(object, object, object)
 
     WrappedCLS.__name__ = 'Qt' + wrapped_cls.__name__
 

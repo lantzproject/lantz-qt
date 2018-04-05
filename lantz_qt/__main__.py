@@ -25,6 +25,9 @@ def test_panel_demo(args=None):
                                   'to start the simulator:\n\n'
                                   '    lantz sims fungen tcp')
     """
+    print('Please make sure that the simulator is running.\n'
+          'You can start it by running the following command in another terminal:\n\n'
+          'lantz sims fungen tcp')
     from lantz_qt import start_test_app
     from lantz.drivers.examples import LantzSignalGenerator
     from lantz_qt.objwrapper import wrap_driver_cls

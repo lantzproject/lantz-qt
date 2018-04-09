@@ -3,7 +3,9 @@ recursive-include docs *
 recursive-include lantz_qt/*
 
 include *.txt
-include lantz_qt/fedora.png
+include lantz_qt/blocks/*.ui
+include lantz_qt/assets/fedora.png
+include lantz_qt/assets/fungen.ui
 include .travis.yml
 
 global-exclude *.pyc *.pyo .DS_Store

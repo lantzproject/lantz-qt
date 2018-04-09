@@ -25,7 +25,7 @@ from .utils.qt import QtCore, QtGui, SuperQObject, MetaQObject
 from .log import LOGGER
 
 
-ICON_FEDORA = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fedora.png')
+ICON_FEDORA = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', 'fedora.png')
 
 
 class InstrumentSlot(object):
@@ -133,6 +133,9 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
 
         if self.gui:
             for cls in self.__class__.__mro__:
+                if cls is object:
+                    raise ValueError('{}: loading gui file {}'.format(self, self.gui))
+
                 filename = os.path.dirname(inspect.getfile(cls))
                 filename = os.path.join(filename, self.gui)
                 if os.path.exists(filename):

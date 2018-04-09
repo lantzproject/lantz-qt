@@ -17,9 +17,8 @@
     :license: BSD, see the IPython Project for more details.
 """
 
-import os
-
 from .qt_loaders import (load_qt, QT_API_PYQT5, QT_API_PYSIDE2, QT_API_MOCK)
+from .uic import build_loadUi
 
 from ..config import QT_API
 
@@ -36,6 +35,8 @@ else:
     api_opts = [QT_API_PYQT5, ]
 
 QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
+
+QtGui.loadUi = build_loadUi(QT_API)
 
 QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
 

@@ -19,13 +19,18 @@
 
 import os
 
-from .qt_loaders import (load_qt, QT_API_PYQT5, QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK)
+from .qt_loaders import (load_qt, QT_API_PYQT5, QT_API_PYSIDE2, QT_API_MOCK)
 
 from ..config import QT_API
-if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK, None]:
-    raise RuntimeError("Invalid Qt API %r, valid values are: %r, %r, %r" %
-                       (QT_API, QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK))
+
 if QT_API:
+
+    VALID = [QT_API_PYSIDE2, QT_API_PYQT5, QT_API_MOCK]
+
+    if QT_API not in VALID:
+        raise RuntimeError("Invalid Qt API %r, valid values are: %r or empty for system default." %
+                           (QT_API, VALID))
+
     api_opts = [QT_API]
 else:
     api_opts = [QT_API_PYQT5, ]

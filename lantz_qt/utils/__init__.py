@@ -14,5 +14,3 @@ import os
 # Indicates if the documentation is being built in the current process.
 # :type: bool
 LANTZ_BUILDING_DOCS = os.environ.get('LANTZ_BUILDING_DOCS', 'False') == 'True'
-LANTZ_FULL_DEBUG = os.environ.get('LANTZ_FULL_DEBUG', 'False') == 'True'
-LANTZ_FULL_DEBUG = True

@@ -22,7 +22,7 @@ from lantz_core import Driver
 from ..utils.qt import QtCore, QtGui
 
 from ..log import LOGGER
-from ..utils import LANTZ_FULL_DEBUG
+from ..config import PRINT_TRACEBACK
 from ..utils.qt import QtGui
 from .feat import LabeledFeatWidget
 from .dialog_action import ArgumentsInputDialog
@@ -85,7 +85,7 @@ class DriverTestWidget(QtGui.QWidget):
                 layout.addWidget(feat_widget)
             except Exception as ex:
                 LOGGER.debug('Could not create control for {}: {}'.format(feat_name, ex))
-                if LANTZ_FULL_DEBUG:
+                if PRINT_TRACEBACK:
                     import traceback
                     traceback.print_exc()
 
@@ -101,7 +101,7 @@ class DriverTestWidget(QtGui.QWidget):
                 layout.addWidget(feat_widget)
             except Exception as ex:
                 LOGGER.debug('Could not create control for {}: {}'.format(feat_name, ex))
-                if LANTZ_FULL_DEBUG:
+                if PRINT_TRACEBACK:
                     import traceback
                     traceback.print_exc()
 

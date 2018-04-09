@@ -21,14 +21,14 @@ import os
 
 from .qt_loaders import (load_qt, QT_API_PYQT5, QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK)
 
-QT_API = os.environ.get('QT_API', None)
+from ..config import QT_API
 if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK, None]:
     raise RuntimeError("Invalid Qt API %r, valid values are: %r, %r, %r" %
                        (QT_API, QT_API_PYSIDE, QT_API_PYQT, QT_API_MOCK))
-if QT_API is None:
-    api_opts = [QT_API_PYQT5, ]
-else:
+if QT_API:
     api_opts = [QT_API]
+else:
+    api_opts = [QT_API_PYQT5, ]
 
 QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
 

@@ -10,8 +10,8 @@
 """
 
 
-from lantz.utils.qt import QtGui
-from lantz.ui.app import Frontend
+from ..utils.qt import QtGui
+from ..app import Frontend
 
 
 class _PanelsUi(Frontend):

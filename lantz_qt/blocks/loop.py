@@ -13,8 +13,8 @@ import time
 import math
 from enum import IntEnum
 
-from lantz.utils.qt import QtCore, QtGui
-from lantz.ui.app import Frontend, Backend, start_gui_app
+from ..utils.qt import QtCore, QtGui
+from ..app import Frontend, Backend, start_gui_app
 
 
 class StopMode(IntEnum):

@@ -11,9 +11,9 @@
 
 from ..utils.qt import QtCore
 from ..widgets import WidgetMixin
-from lantz.ui.app import start_gui_app, InstrumentSlot
+from ..app import start_gui_app, InstrumentSlot
 
-from lantz.ui.blocks import Scan, ScanUi
+from . import Scan, ScanUi
 
 
 class FeatScan(Scan):

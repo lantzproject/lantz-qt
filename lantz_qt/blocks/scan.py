@@ -14,8 +14,8 @@ import time
 import math
 from enum import IntEnum
 
-from lantz.utils.qt import QtCore, QtGui
-from lantz.ui.app import Frontend, Backend, start_gui_app
+from ..utils.qt import QtCore, QtGui
+from ..app import Frontend, Backend, start_gui_app
 
 
 def _linspace_args(start, stop, step_size=None, length=None):

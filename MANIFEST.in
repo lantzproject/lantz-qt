@@ -1,6 +1,6 @@
 include LICENSE AUTHORS README CHANGES
 recursive-include docs *
-recursive-include lantz/qt/*
+recursive-include lantz * 
 
 include *.txt
 include lantz/qt/blocks/*.ui

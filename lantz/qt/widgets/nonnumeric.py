@@ -12,7 +12,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from lantz_core.helpers import MISSING
+import json
+
+from lantz.core.helpers import MISSING
 
 from ..utils.qt import QtGui
 from .common import WidgetMixin, register_wrapper
@@ -90,6 +92,8 @@ class QLineEditMixin(WidgetMixin):
     def setValue(self, value):
         if value is MISSING:
             return
+        if isinstance(value, dict) and not self.writable:
+            return self.setText(json.dumps(value))
         return self.setText(value)
 
 

@@ -14,21 +14,8 @@ from ..utils.qt import QtGui
 from ..app import Frontend
 
 
-class _PanelsUi(Frontend):
+class _CommonUi(Frontend):
     """The Loop frontend provides a GUI for the Rich Backend"""
-
-    gui = 'placeholder.ui'
-
-    auto_connect = False
-
-    #: Tuple with the columns
-    #: Each element can be:
-    #:   - Frontend class: will be connected to the default backend.
-    #:   - Front2Back(Frontend class, backend name): will be connect to a specific backend.
-    #:   - tuple: will be iterated to obtain the rows.
-    parts = ()
-
-    _inner, _outer = None, None
 
     def _add(self, layout, parts):
         """Add widgets in parts to layout.
@@ -67,6 +54,24 @@ class _PanelsUi(Frontend):
                 raise ValueError('Only Frontend or tuple are valid values '
                                  'valid for parts not %s (%s)' % (part, type(part)))
 
+        return layout
+
+
+class _PanelsUi(_CommonUi):
+
+    gui = 'placeholder.ui'
+
+    auto_connect = False
+
+    #: Tuple with the columns
+    #: Each element can be:
+    #:   - Frontend class: will be connected to the default backend.
+    #:   - Front2Back(Frontend class, backend name): will be connect to a specific backend.
+    #:   - tuple: will be iterated to obtain the rows.
+    parts = ()
+
+    _inner, _outer = None, None
+
     def setupUi(self):
         super().setupUi()
         layout = self._outer()
@@ -84,3 +89,27 @@ class HorizonalUi(_PanelsUi):
     """Uses a horizontal box layout to locate widgets."""
 
     _inner, _outer = QtGui.QVBoxLayout, QtGui.QHBoxLayout
+
+
+class ToolbarLeftRightUi(_CommonUi):
+    """The Loop frontend provides a GUI for the Rich Backend"""
+
+    gui = 'toolbar_left_right.ui'
+
+    auto_connect = False
+
+    #: Tuple with the columns
+    #: Each element can be:
+    #:   - Frontend class: will be connected to the default backend.
+    #:   - Front2Back(Frontend class, backend name): will be connect to a specific backend.
+    #:   - tuple: will be iterated to obtain the rows.
+    toolbar = ()
+    left = ()
+    right = ()
+
+    def setupUi(self):
+        super().setupUi()
+
+        self.widget.toolbar.setLayout(self._add(QtGui.QHBoxLayout(), self.toolbar))
+        self.widget.left.setLayout(self._add(QtGui.QVBoxLayout(), self.left))
+        self.widget.right.setLayout(self._add(QtGui.QVBoxLayout(), self.right))

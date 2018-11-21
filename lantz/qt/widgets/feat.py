@@ -11,8 +11,8 @@
 
 import inspect
 
-from lantz_core.feat import DictFeat, DictFeatProxy
-from lantz_core.helpers import UNSET, MISSING
+from lantz.core.feat import DictFeat, DictFeatProxy
+from lantz.core.helpers import UNSET, MISSING
 
 from ..utils.qt import QtCore, QtGui
 from .common import WidgetMixin

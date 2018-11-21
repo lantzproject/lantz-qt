@@ -9,7 +9,7 @@
 
 import os
 
-from lantz_core.config import register_and_get
+from lantz.core.config import register_and_get
 
 
 # ====================================

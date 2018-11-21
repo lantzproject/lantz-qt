@@ -1,23 +1,20 @@
 
 
+from lantz import ArgumentParserSC
+
+
 def main(args=None):
     """Run simulators.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Run Lantz QtDemo.')
-    parser.add_argument('demo', choices=list(CHOICES.keys()))
-    args, pending = parser.parse_known_args(args)
-    print('Dispatching ' + args.demo)
-
-    CHOICES[args.demo](pending)
+    parser = ArgumentParserSC('demo', CHOICES, description='Run Lantz QtDemo.')
+    parser.dispatch(args)
 
 
 def testpanel_demo(args=None):
     """Run simulators.
     """
 
-    from lantz_qt.utils.qt import QtGui
+    from lantz.qt.utils.qt import QtGui
     """
     QtGui.QMessageBox.information(None,
                                   'Lantz Test Panel Demo'
@@ -31,7 +28,7 @@ def testpanel_demo(args=None):
 
     from lantz.drivers.examples import LantzSignalGenerator
 
-    from lantz_qt import start_test_app, wrap_driver_cls
+    from lantz.qt import start_test_app, wrap_driver_cls
 
     QLantzSignalGenerator = wrap_driver_cls(LantzSignalGenerator)
     with QLantzSignalGenerator('TCPIP::localhost::5678::SOCKET') as inst:
@@ -49,7 +46,7 @@ def uifile_demo(args=None):
 
     from lantz.drivers.examples import LantzSignalGenerator
 
-    from lantz_qt import start_gui, wrap_driver_cls
+    from lantz.qt import start_gui, wrap_driver_cls
 
     QLantzSignalGenerator = wrap_driver_cls(LantzSignalGenerator)
     with QLantzSignalGenerator('TCPIP::localhost::5678::SOCKET') as inst:
@@ -63,10 +60,10 @@ def featscan_demo(args=None):
           'lantz sims fungen tcp')
 
     # We import a helper function to start the app
-    from lantz_qt import start_gui_app, wrap_driver_cls
+    from lantz.qt import start_gui_app, wrap_driver_cls
 
     # The block consists of two parts the backend and the frontend
-    from lantz_qt.blocks import FeatScan, FeatScanUi
+    from lantz.qt.blocks import FeatScan, FeatScanUi
 
     # An this you know already
     from lantz.drivers.examples import LantzSignalGenerator
@@ -93,10 +90,10 @@ def flock_demo(args=None):
           'lantz sims fungen tcp')
 
     # We import a helper function to start the app
-    from lantz_qt import start_gui_app, wrap_driver_cls
+    from lantz.qt import start_gui_app, wrap_driver_cls
 
     # The block consists of two parts the backend and the frontend
-    from lantz_qt.blocks import FeatScan, FeatScanUi
+    from lantz.qt.blocks import FeatScan, FeatScanUi
 
     # An this you know already
     from lantz.drivers.examples import LantzSignalGenerator

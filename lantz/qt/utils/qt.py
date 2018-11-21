@@ -36,7 +36,7 @@ else:
 
 QtCore, QtGui, QtSvg, QT_API = load_qt(api_opts)
 
-QtGui.loadUi = build_loadUi(QT_API)
+QtGui.loadUi, QtGui.loadUiType = build_loadUi(QT_API)
 
 QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 10))
 

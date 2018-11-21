@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from lantz_core import Q_
+from lantz.core import Q_
 
 # Import Qt modules from lantz (pyside and pyqt compatible)
 from ..utils.qt import QtGui

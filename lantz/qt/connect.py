@@ -12,9 +12,9 @@
 
 import time
 
-from lantz_core import initialize_many
-from lantz_core import Driver
-from lantz_core.helpers import MISSING
+from lantz.core import initialize_many
+from lantz.core import Driver
+from lantz.core.helpers import MISSING
 
 from .log import LOGGER
 from .utils.qt import QtCore, QtGui

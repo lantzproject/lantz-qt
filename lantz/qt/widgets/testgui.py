@@ -17,7 +17,7 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from lantz_core import Driver
+from lantz.core import Driver
 
 from ..utils.qt import QtCore, QtGui
 

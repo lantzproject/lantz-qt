@@ -8,15 +8,15 @@ def build_loadUi(QT_API):
 
     if QT_API == qt_loaders.QT_API_PYQT5:
 
-        from PyQt5.uic import loadUi
+        from PyQt5.uic import loadUi, loadUiType
 
-        return loadUi
+        return loadUi, loadUiType
 
     elif QT_API == qt_loaders.QT_API_PYQT:
 
-        from PyQt4.uic import loadUi
+        from PyQt4.uic import loadUi, loadUiType
 
-        return loadUi
+        return loadUi, loadUiType
 
     else:
 
@@ -231,4 +231,7 @@ def build_loadUi(QT_API):
             QMetaObject.connectSlotsByName(widget)
             return widget
 
-        return loadUi
+        def loadUiType(*args, **kwargs):
+            raise Exception('QT_API=%s does not implement loadUiType yet.' % QT_API)
+
+        return loadUi, loadUiType

@@ -17,8 +17,8 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from lantz_core import Q_
-from lantz_core.helpers import MISSING
+from lantz.core import Q_
+from lantz.core.helpers import MISSING
 
 from ..utils.qt import QtGui
 from .dialog_units import UnitInputDialog
@@ -92,7 +92,7 @@ class MagnitudeMixin(WidgetMixin):
     def value(self):
         """Get widget value and scale by units."""
         if self._units:
-            return super().value() * self._units
+            return Q_(super().value(), self._units)
         return super().value()
 
     def setValue(self, value):

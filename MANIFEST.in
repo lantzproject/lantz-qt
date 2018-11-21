@@ -1,11 +1,11 @@
 include LICENSE AUTHORS README CHANGES
 recursive-include docs *
-recursive-include lantz_qt/*
+recursive-include lantz/qt/*
 
 include *.txt
-include lantz_qt/blocks/*.ui
-include lantz_qt/assets/fedora.png
-include lantz_qt/assets/fungen.ui
+include lantz/qt/blocks/*.ui
+include lantz/qt/assets/fedora.png
+include lantz/qt/assets/fungen.ui
 include .travis.yml
 
 global-exclude *.pyc *.pyo .DS_Store

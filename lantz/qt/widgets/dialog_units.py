@@ -10,7 +10,7 @@
 """
 
 
-from lantz_core import Q_
+from lantz.core import Q_
 from ..utils.qt import QtCore, QtGui
 
 

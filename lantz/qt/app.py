@@ -15,8 +15,8 @@ import sys
 import inspect
 import collections
 
-from lantz_core.driver import Driver
-from lantz_core.flock import initialize_many, finalize_many
+from lantz.core.driver import Driver
+from lantz.core.flock import initialize_many, finalize_many
 
 from .connect import connect_setup, connect_driver, connect_feat
 from .widgets import DriverTestWidget, SetupTestWidget
@@ -137,7 +137,10 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
                     raise ValueError('{}: loading gui file {}'.format(self, self.gui))
 
                 filename = os.path.dirname(inspect.getfile(cls))
-                filename = os.path.join(filename, self.gui)
+                if isinstance(self.gui, tuple):
+                    filename = os.path.join(filename, *self.gui)
+                else:
+                    filename = os.path.join(filename, self.gui)
                 if os.path.exists(filename):
                     LOGGER.debug('{}: loading gui file {}'.format(self, filename))
                     self.widget = QtGui.loadUi(filename)

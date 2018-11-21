@@ -11,6 +11,7 @@
 
 from .loop import Loop, LoopUi
 from .scan import Scan, ScanUi
+from .feat import Feat, FeatUi
 from .featscan import FeatScan, FeatScanUi
 from .chart import ChartUi
-from .layouts import HorizonalUi, VerticalUi
+from .layouts import HorizonalUi, VerticalUi, ToolbarLeftRightUi

@@ -15,7 +15,7 @@ long_description = '\n\n'.join([read('README'),
 
 __doc__ = long_description
 
-setup(name='lantz_qt',
+setup(name='lantz-qt',
       version='0.5.dev0',
       license='BSD',
       description='Instrumentation framework',
@@ -24,21 +24,21 @@ setup(name='lantz_qt',
       author='Hernan E. Grecco',
       author_email='hernan.grecco@gmail.com',
       url='https://github.com/lantzproject',
-      install_requires=['lantz_core>=0.5.dev0',
+      install_requires=['lantz-core>=0.5.dev0',
                         ],
       include_package_data=True,
-      packages=['lantz_qt',
-                'lantz_qt.blocks',
-                'lantz_qt.utils',
-                'lantz_qt.widgets'],
+      packages=['lantz.qt',
+                'lantz.qt.blocks',
+                'lantz.qt.utils',
+                'lantz.qt.widgets'],
       zip_safe=False,
       platforms='any',
       entry_points={
           'console_scripts': [
-              'lantz-qtdemo = lantz_qt.__main__:main'
+              'lantz-qtdemo = lantz.qt.__main__:main'
           ],
           'lantz_subcommands': [
-              'qtdemo = lantz_qt.__main__:main'
+              'qtdemo = lantz.qt.__main__:main'
           ]
       },
       classifiers=[

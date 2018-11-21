@@ -9,9 +9,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from lantz_core.helpers import UNSET, MISSING
+from lantz.core.helpers import UNSET, MISSING
 
-from lantz_core.feat import FeatProxy, DictFeatProxy, Feat, DictFeat
+from lantz.core.feat import FeatProxy, DictFeatProxy, Feat, DictFeat
 from ..log import LOGGER
 from ..utils import LANTZ_BUILDING_DOCS
 from ..utils.qt import QtGui

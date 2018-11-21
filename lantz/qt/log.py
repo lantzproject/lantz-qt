@@ -10,6 +10,6 @@
 """
 
 
-from lantz_core.log import get_logger
+from lantz.core.log import get_logger
 
 LOGGER = get_logger('lantz.qt')

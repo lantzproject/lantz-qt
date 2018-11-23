@@ -15,6 +15,8 @@ import sys
 import inspect
 import collections
 
+from pimpmyclass.mixins import LogMixin
+
 from lantz.core.driver import Driver
 from lantz.core.flock import initialize_many, finalize_many
 
@@ -22,7 +24,7 @@ from .connect import connect_setup, connect_driver, connect_feat
 from .widgets import DriverTestWidget, SetupTestWidget
 from .objwrapper import QDriver
 from .utils.qt import QtCore, QtGui, SuperQObject, MetaQObject
-from .log import LOGGER
+from .log import get_logger, LOGGER
 
 
 ICON_FEDORA = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', 'fedora.png')
@@ -116,7 +118,10 @@ class _FrontendType(MetaQObject):
         return cls.__name__
 
 
-class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
+class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
+
+    logger_name = None
+    _get_logger = get_logger
 
     frontends = {}
 
@@ -131,6 +136,9 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
 
         self._backend = None
 
+        if self.logger_name is None:
+            self.logger_name = 'lantz.qt.frontend.' + str(self)
+
         if self.gui:
             for cls in self.__class__.__mro__:
                 if cls is object:
@@ -142,7 +150,7 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
                 else:
                     filename = os.path.join(filename, self.gui)
                 if os.path.exists(filename):
-                    LOGGER.debug('{}: loading gui file {}'.format(self, filename))
+                    self.log_debug('loading gui file {}'.format(filename))
                     self.widget = QtGui.loadUi(filename)
                     self.setCentralWidget(self.widget)
                     break
@@ -176,13 +184,13 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
     @backend.setter
     def backend(self, backend):
         if self._backend:
-            LOGGER.debug('{}: disconnecting backend: {}'.format(self, backend))
+            self.log_debug('disconnecting backend: {}'.format(backend))
             self.disconnect(backend)
 
         self._backend = backend
 
         if backend:
-            LOGGER.debug('{}: connecting backend: {}'.format(self, backend))
+            self.log_debug('connecting backend: {}'.format(backend))
             if self.auto_connect:
                 connect_setup(self.widget, backend.instruments.values())
 
@@ -193,7 +201,10 @@ class Frontend(QtGui.QMainWindow, metaclass=_FrontendType):
         return Front2Back(cls, backend_name, settings)
 
 
-class Backend(SuperQObject, metaclass=_BackendType):
+class Backend(LogMixin, SuperQObject, metaclass=_BackendType):
+
+    logger_name = None
+    _get_logger = get_logger
 
     backends = {}
     instruments = {}
@@ -201,13 +212,16 @@ class Backend(SuperQObject, metaclass=_BackendType):
     def __init__(self, parent=None, **instruments_and_backends):
         super().__init__(parent)
 
+        if self.logger_name is None:
+            self.logger_name = 'lantz.qt.backend.' + str(self)
+
         for name, app in self.backends.items():
             if not name in instruments_and_backends:
                 continue
 
             d = {key: inst for key, inst in instruments_and_backends.items()
                  if key in app.instruments.keys()}
-            LOGGER.debug('{}: creating sub-backend named {} with {}'.format(self, name, app))
+            self.log_debug('creating sub-backend named {} with {}'.format(name, app))
             if name in instruments_and_backends:
                 d.update(instruments_and_backends[name])
             setattr(self, name, app(parent=self, **d))
@@ -217,7 +231,7 @@ class Backend(SuperQObject, metaclass=_BackendType):
                 continue
 
             inst = instruments_and_backends[name]
-            LOGGER.debug('{}: relating instrument named {} with {}'.format(self, name, inst))
+            self.log_debug('{}: relating instrument named {} with {}'.format(name, inst))
             setattr(self, name, inst)
             inst.setParent(self)
 
@@ -334,3 +348,19 @@ def start_gui(ui_filename, drivers, qapp_or_args=None):
     if sys.platform.startswith('darwin'):
         main.raise_()
     qapp.exec_()
+
+
+def start_frontend(frontend_class, qapp_or_args=None):
+    if isinstance(qapp_or_args, QtGui.QApplication):
+        qapp = qapp_or_args
+    else:
+        qapp = QtGui.QApplication(qapp_or_args or [''])
+        qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
+
+    frontend = frontend_class()
+    frontend.show()
+
+    if sys.platform.startswith('darwin'):
+        frontend.raise_()
+
+    sys.exit(qapp.exec_())

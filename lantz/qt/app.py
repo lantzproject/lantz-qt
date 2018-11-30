@@ -13,16 +13,21 @@
     -------
 
     Upon class definition
-    - Declares InstrumentSlots
-    - Declares BackendSlots
+    - Declares multiple InstrumentSlots
+    - Declares multiple BackendSlots
 
-    Upon construction:
-    - takes kwargs linking names to actual instruments or backends instances
-      and assign them to the Instrument and BackendSlots
-    - Iterates over all backends instantiating them with the appropriate items
-      from this backend
+    Backends and instruments are instantiated by the user and connected between them by the user.
 
 
+    Frontend
+    --------
+
+    Each frontend has a single backend.
+
+    Upon class definition
+    - Declares multiple Frontend / Frontends.using / Frontends.using_parent backend
+
+    Frontends are instantiated and connected by Lantz
 
 
     :copyright: 2018 by Lantz Authors, see AUTHORS for more details.
@@ -56,6 +61,19 @@ class InstrumentSlot(object):
 
     def initialize(self):
         LOGGER.warning('The Instrument slot {} has not been assigned '
+                       'to an actual instrument', self._slot_name )
+
+    def finalize(self):
+        pass
+
+
+class BackendSlot(object):
+
+    def __str__(self):
+        return '<BackendSlot>'
+
+    def initialize(self):
+        LOGGER.warning('The Backend slot {} has not been assigned '
                        'to an actual instrument', self._slot_name )
 
     def finalize(self):
@@ -108,7 +126,7 @@ class _BackendType(MetaQObject):
                 cls.instruments[key]._slot_name = key
                 setattr(cls, key, cls.create_instrument_property(key))
                 LOGGER.debug('In {}, adding instrument named {} of type {}'.format(cls, key, value))
-            elif isinstance(value, (Backend, Back2Back)):
+            elif isinstance(value, BackendSlot):
                 cls.backends[key] = value
                 cls.backends[key]._slot_name = key
                 setattr(cls, key, cls.create_backend_property(key))
@@ -189,7 +207,7 @@ class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
 
         # Iterate over all frontend items in the current frontend
         # and instantiate each of them.
-        # Note: a frontend declares which sub frontend requires
+        # Note: a frontend declares which sub backend requires
         # but instantation is delegated to lantz
 
         for name, frontend in self.frontends.items():
@@ -300,7 +318,6 @@ class Backend(Base, SuperQObject, metaclass=_BackendType):
                 setattr(self, name, app(parent=self))
             elif isinstance(app, Back2Back):
                 cls = app.backend_class
-                d = {key: }
                 setattr(self, name, app(parent=self))
             d = {key: inst for key, inst in instruments_and_backends.items()
                  if key in app.instruments.keys()}

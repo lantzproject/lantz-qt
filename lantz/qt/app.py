@@ -104,7 +104,23 @@ class InstrumentSlot:
         pass
 
 
-class BackendSlot(object):
+class FlockSlot:
+
+    def __init__(self, *required_names):
+        self.require_names = required_names
+
+    def __str__(self):
+        return '<FlockSlot>'
+
+    def initialize(self):
+        LOGGER.warning('The Flock slot {} has not been assigned '
+                       'to an actual flock', self._slot_name )
+
+    def finalize(self):
+        pass
+
+
+class BackendSlot:
 
     def __str__(self):
         return '<BackendSlot>'
@@ -137,6 +153,20 @@ class _BackendType(MetaQObject):
 
         return property(getter, setter)
 
+    def create_flock_property(cls, key):
+        def getter(self):
+            return self.flocks[key]
+        def setter(self, flock):
+            current = self.flocks[key]
+            if set(current.required_names) <= set(flock.keys()):
+                raise ValueError('The flock {} must have '
+                                 'the following names (given {})'.format(key,
+                                                                         set(current.required_names),
+                                                                         set(flock.keys())))
+            self.flocks[key] = flock
+
+        return property(getter, setter)
+
     def create_backend_property(cls, key):
         def getter(self):
             return self.backends[key]
@@ -149,27 +179,34 @@ class _BackendType(MetaQObject):
         super().__init__(classname, bases, class_dict)
 
         cls.instruments = dict()
+        cls.flocks = dict()
         cls.backends = dict()
-
         for key, value in class_dict.items():
-            if isinstance(value, InstrumentSlot):
+            if isinstance(value, InstrumentSlot) or value is InstrumentSlot:
+                if value is InstrumentSlot:
+                    value = value()
                 cls.instruments[key] = value
                 cls.instruments[key]._slot_name = key
                 setattr(cls, key, cls.create_instrument_property(key))
                 LOGGER.debug('In {}, adding instrument named {} of type {}'.format(cls, key, value))
-            elif value is InstrumentSlot:
-                value = value()
-                cls.instruments[key] = value
-                cls.instruments[key]._slot_name = key
-                setattr(cls, key, cls.create_instrument_property(key))
-                LOGGER.debug('In {}, adding instrument named {} of type {}'.format(cls, key, value))
-            elif isinstance(value, BackendSlot):
+
+            elif isinstance(value, FlockSlot) or value is FlockSlot:
+                if value is FlockSlot:
+                    value = value()
+                cls.flocks[key] = value
+                cls.flocks[key]._slot_name = key
+                setattr(cls, key, cls.create_flock_property(key))
+                LOGGER.debug('In {}, adding flock named {} of type {}'.format(cls, key, value))
+
+            elif value is BackendSlot:
                 cls.backends[key] = value
                 cls.backends[key]._slot_name = key
                 setattr(cls, key, cls.create_backend_property(key))
                 LOGGER.debug('In {}, adding backend named {} of type {}'.format(cls, key, value))
+
             else:
-                LOGGER.debug('In {}, unhandled attribute named {} = {}'.format(cls, key, value))
+                pass
+                #LOGGER.debug('In {}, unhandled attribute named {} = {}'.format(cls, key, value))
 
     def __str__(cls):
         return cls.__name__
@@ -324,19 +361,23 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
         return Front2Back(cls, backend_name=None)
 
 
-class Backend(Base, SuperQObject, metaclass=_BackendType):
+class Backend(Base, ThreadLogMixin, SuperQObject, metaclass=_BackendType):
 
-    _observer_signal_init = QtCore.pyqtSignal
+    _observer_signal_init = lambda: QtCore.pyqtSignal(object, object)
 
-    backends = {}
-    instruments = {}
+    backends = None
+    instruments = None
+    flocks = None
 
     def __init__(self, parent=None, **instruments_and_backends):
 
+
+        # First we check that the names provided do not collide with parent classes
         invalid = set(dir(Base)) | set(dir(SuperQObject)) | set(dir(_BackendType))
         for name in instruments_and_backends.keys():
             if name in invalid:
-                raise ValueError('{} is an invalid instrument or backend name as it collides with attribute of parent class'.format(name))
+                raise ValueError('{} is an invalid instrument or backend name'
+                                 ' as it collides with attribute of parent class'.format(name))
 
         if self.logger_name is None:
             self.logger_name = 'lantz.qt.backend.' + str(self)
@@ -344,34 +385,30 @@ class Backend(Base, SuperQObject, metaclass=_BackendType):
         Base.__init__(self, self.logger_name)
         super().__init__(parent)
 
-        print(self, '-->', instruments_and_backends, self.backends)
-        for name, app in self.backends.items():
-            if name not in instruments_and_backends:
-                continue
+        inst_keys = set(self.instruments.keys())
+        flo_keys = set(self.flocks.keys())
+        be_keys = set(self.backends.keys())
 
-            self.log_debug('creating sub-backend named {} with {}'.format(name, app))
+        for key, value in instruments_and_backends.items():
+            if key in inst_keys:
+                inst_keys.remove(key)
+                self.instruments[key] = value
+            elif key in flo_keys:
+                flo_keys.remove(key)
+                self.flocks[key] = value
+            elif key in be_keys:
+                be_keys.remove(key)
+                self.backends[key] = value
+            else:
+                raise ValueError('Cannot link argument. No InstrumentSlot, BackendSlot or FlockSlot named {}'.format(key))
 
-            if app is Backend:
-                setattr(self, name, app(parent=self))
-            elif isinstance(app, Back2Back):
-                cls = app.backend_class
-                setattr(self, name, app(parent=self))
-            d = {key: inst for key, inst in instruments_and_backends.items()
-                 if key in app.instruments.keys()}
-            if name in instruments_and_backends:
-                d.update(instruments_and_backends[name])
+        if inst_keys:
+            raise ValueError('No value provided for InstrumentSlot {}'.format(inst_keys))
 
+        if be_keys:
+            raise ValueError('No value provided for BackendSlot {}'.format(be_keys))
 
-        for name in self.instruments.keys():
-            if name not in instruments_and_backends:
-                continue
-
-            inst = instruments_and_backends[name]
-            self.log_debug('relating instrument named {} with {}'.format(name, inst))
-            setattr(self, name, inst)
-            inst.setParent(self)
-
-        # TODO: Check for all instruments exists
+        self.log_current_thread()
 
     def __str__(self):
         return self.__class__.__name__

@@ -14,6 +14,7 @@ import time
 
 from lantz.core import initialize_many
 from lantz.core import Driver
+from lantz.core.driver import Base
 from lantz.core.helpers import MISSING
 
 from .log import LOGGER
@@ -46,8 +47,8 @@ def connect_feat(widget, target, feat_name=None, feat_key=MISSING):
 
     LOGGER.debug('Connecting {} to {}, {}, {}'.format(widget, target, feat_name, feat_key))
 
-    if not isinstance(target, Driver):
-        raise TypeError('Connect target must be an instance of lantz.Driver, not {}'.format(target))
+    if not isinstance(target, Base):
+        raise TypeError('Connect target must be an instance of Driver or Backend, not {}'.format(target))
 
     if not feat_name:
         feat_name = widget.objectName()
@@ -57,7 +58,13 @@ def connect_feat(widget, target, feat_name=None, feat_key=MISSING):
         widget.lantz_target = target
         return
 
-    feat = target.feats[feat_name]
+    try:
+        feat = target.feats[feat_name]
+    except KeyError:
+        try:
+            feat = target.dictfeats[feat_name]
+        except KeyError:
+            raise KeyError("Cannot find feat/dictfeat '{}' in {}".format(feat_name, target))
 
     WidgetMixin.wrap(widget)
     widget.bind_feat(feat)

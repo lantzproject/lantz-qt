@@ -12,5 +12,5 @@
 
 from . import feat, nonnumeric, numeric
 from .common import WidgetMixin, ChildrenWidgets
-
+from .initialize import InitializeWindow, InitializeDialog
 from .testgui import DriverTestWidget, SetupTestWidget

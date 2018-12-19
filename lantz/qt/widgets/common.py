@@ -148,12 +148,16 @@ class WidgetMixin(object):
         """When the widget is changed by the user, update the driver with
         the new value.
         """
+        if key is not MISSING and key != self._feat_key:
+            return
         if self._update_on_change:
             self.value_to_feat()
 
     def on_feat_value_changed(self, value, old_value=UNSET, key=MISSING):
         """When the driver value is changed, update the widget if necessary.
         """
+        if key is not MISSING and key != self._feat_key:
+            return
         if self.value() != value:
             self.setValue(value)
 
@@ -179,11 +183,15 @@ class WidgetMixin(object):
     @lantz_target.setter
     def lantz_target(self, target):
         if self._lantz_target:
-            getattr(self._lantz_target, self._feat.name + '_changed').disconnect(self.on_feat_value_changed)
+            self._feat_signal.disconnect(self.on_feat_value_changed)
             self.valueChanged.disconnect()
+
         if target:
             self._lantz_target = target
-            getattr(self._lantz_target, self._feat.name + '_changed').connect(self.on_feat_value_changed)
+
+            self._feat_signal = getattr(self._lantz_target, self._feat.name + '_changed')
+            self._feat_signal.connect(self.on_feat_value_changed)
+
             self.value_from_feat()
             self.valueChanged.connect(self.on_widget_value_changed)
 

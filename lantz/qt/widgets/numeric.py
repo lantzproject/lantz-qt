@@ -18,7 +18,7 @@
 """
 
 from lantz.core import Q_
-from lantz.core.helpers import MISSING
+from lantz.core.helpers import MISSING, UNSET
 
 from ..utils.qt import QtGui
 from .dialog_units import UnitInputDialog
@@ -28,7 +28,7 @@ from .common import WidgetMixin, register_wrapper
 @register_wrapper
 class MagnitudeMixin(WidgetMixin):
 
-    _WRAPPED = (QtGui.QDoubleSpinBox, )
+    _WRAPPED = (QtGui.QDoubleSpinBox, QtGui.QSpinBox)
 
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
@@ -98,7 +98,7 @@ class MagnitudeMixin(WidgetMixin):
     def setValue(self, value):
         """Set widget value scaled by units.
         """
-        if value is MISSING:
+        if value is MISSING or value is UNSET:
             font = QtGui.QFont()
             font.setItalic(True)
             self.setFont(font)
@@ -132,7 +132,7 @@ class LCDNumberMixin(MagnitudeMixin):
         super().setEnabled(not value)
 
     def setValue(self, value):
-        if value is MISSING:
+        if value is MISSING or value is UNSET:
             font = QtGui.QFont()
             font.setItalic(True)
             self.setFont(font)

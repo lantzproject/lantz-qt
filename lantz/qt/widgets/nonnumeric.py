@@ -14,7 +14,7 @@
 
 import json
 
-from lantz.core.helpers import MISSING
+from lantz.core.helpers import MISSING, UNSET
 
 from ..utils.qt import QtGui
 from .common import WidgetMixin, register_wrapper
@@ -34,7 +34,7 @@ class QComboBoxMixin(WidgetMixin):
         return self.currentText()
 
     def setValue(self, value):
-        if value is MISSING:
+        if value is MISSING or value is UNSET:
             font = QtGui.QFont()
             font.setItalic(True)
             self.setFont(font)
@@ -71,7 +71,7 @@ class QCheckBoxMixin(WidgetMixin):
         return self.isChecked()
 
     def setValue(self, value):
-        if value is MISSING:
+        if value is MISSING or value is UNSET:
             return
         self.setChecked(value)
 
@@ -90,7 +90,7 @@ class QLineEditMixin(WidgetMixin):
         return self.text()
 
     def setValue(self, value):
-        if value is MISSING:
+        if value is MISSING or value is UNSET:
             return
         if isinstance(value, dict) and not self.writable:
             return self.setText(json.dumps(value))

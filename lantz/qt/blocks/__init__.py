@@ -15,3 +15,4 @@ from .feat import Feat, FeatUi
 from .featscan import FeatScan, FeatScanUi
 from .chart import ChartUi
 from .layouts import HorizonalUi, VerticalUi, ToolbarLeftRightUi
+from .wlayout import BorderUi

@@ -14,7 +14,7 @@ from ..utils.qt import QtGui
 from ..app import Frontend
 
 
-class _CommonUi(Frontend):
+class _CommonUi:
     """The Loop frontend provides a GUI for the Rich Backend"""
 
     def _add(self, layout, parts):
@@ -32,6 +32,10 @@ class _CommonUi(Frontend):
 
         """
         for part_name in parts:
+            if part_name is True:
+                layout.addStretch()
+                continue
+
             part = getattr(self, part_name)
 
             if isinstance(part, Frontend):
@@ -57,7 +61,7 @@ class _CommonUi(Frontend):
         return layout
 
 
-class _PanelsUi(_CommonUi):
+class _PanelsUi(_CommonUi, Frontend):
 
     gui = 'placeholder.ui'
 
@@ -91,10 +95,13 @@ class HorizonalUi(_PanelsUi):
     _inner, _outer = QtGui.QVBoxLayout, QtGui.QHBoxLayout
 
 
-class ToolbarLeftRightUi(_CommonUi):
+from ..app import Frontend
+
+
+class ToolbarLeftRightUi(_CommonUi, Frontend):
     """The Loop frontend provides a GUI for the Rich Backend"""
 
-    gui = 'toolbar_left_right.ui'
+    gui = 'left_main_center.ui'
 
     auto_connect = False
 
@@ -105,11 +112,12 @@ class ToolbarLeftRightUi(_CommonUi):
     #:   - tuple: will be iterated to obtain the rows.
     toolbar = ()
     left = ()
-    right = ()
+    center = ()
 
     def setupUi(self):
         super().setupUi()
 
-        self.widget.toolbar.setLayout(self._add(QtGui.QHBoxLayout(), self.toolbar))
-        self.widget.left.setLayout(self._add(QtGui.QVBoxLayout(), self.left))
-        self.widget.right.setLayout(self._add(QtGui.QVBoxLayout(), self.right))
+        self.widget.topbar.setLayout(self._add(QtGui.QHBoxLayout(), self.toolbar))
+        self.widget.leftbar.setLayout(self._add(QtGui.QVBoxLayout(), self.left))
+        self.setCentralWidget(self.center)
+

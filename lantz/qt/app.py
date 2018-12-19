@@ -38,6 +38,21 @@ import os
 import sys
 import inspect
 import collections
+import threading
+
+class HidingLock(object):
+    def __init__(self, obj, lock=None):
+        self.lock = lock or threading.RLock()
+        self._obj = obj
+
+    def __enter__(self):
+        self.lock.acquire()
+        return self._obj
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.lock.release()
+
+
 
 from pimpmyclass.mixins import LogMixin
 
@@ -54,7 +69,29 @@ from .log import get_logger, LOGGER
 ICON_FEDORA = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'assets', 'fedora.png')
 
 
-class InstrumentSlot(object):
+class ThreadLogMixin:
+
+    _PP_THREADS = HidingLock({})
+
+    def log_current_thread(self, msg='Current thread is'):
+        thread = self.thread()
+        thid = int(thread.currentThreadId())
+        thname = thread.objectName()
+
+        with self._PP_THREADS as d:
+            if thid in d:
+                pp = d[thid]
+            else:
+                pp = d[thid] = len(d)
+
+        self.log_debug(msg + ' %d %s (%s)' % (pp, thname, thid))
+
+    def moveToThread(self, thread):
+        super().moveToThread(thread)
+        self.log_current_thread('Moved to thread')
+
+
+class InstrumentSlot:
 
     def __str__(self):
         return '<InstrumentSlot>'
@@ -163,7 +200,7 @@ class _FrontendType(MetaQObject):
         return cls.__name__
 
 
-class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
+class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
 
     logger_name = None
     _get_logger = get_logger
@@ -248,6 +285,8 @@ class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
         self.setupUi()
         self.backend = backend
 
+        self.log_current_thread()
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -255,7 +294,6 @@ class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
         pass
 
     def connect_backend(self):
-        print('Connect backend %s' % repr(self))
         pass
 
     @property
@@ -264,7 +302,6 @@ class Frontend(LogMixin, QtGui.QMainWindow, metaclass=_FrontendType):
 
     @backend.setter
     def backend(self, backend):
-        print('calling setter', self, backend, type(backend))
         if self._backend:
             self.log_debug('disconnecting backend: {}'.format(backend))
             self.disconnect(backend)
@@ -355,19 +392,35 @@ class Backend(Base, SuperQObject, metaclass=_BackendType):
     def invoke(self, func, *args, **kwargs):
         QtCore.QTimer.singleShot(0, lambda: func(*args, **kwargs))
 
-    @classmethod
-    def link(self, cls, local_name, foreign_name=None):
-        return Back2Back(cls, local_name, foreign_name or local_name)
+    def moveToThread(self, thread):
+        super().moveToThread(thread)
+        for inst in self.instruments.values():
+            inst.moveToThread(thread)
+        for be in self.backends.values():
+            be.moveToThread(thread)
+        self.log_current_thread('Moved to thread')
 
 
-def start_gui_app(backend, frontend_class, qapp_or_args=None):
+def build_qapp(qapp_or_args=None, after_func=None):
     if isinstance(qapp_or_args, QtGui.QApplication):
         qapp = qapp_or_args
     else:
         qapp = QtGui.QApplication(qapp_or_args or [''])
         qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
 
+    if after_func:
+        qapp = after_func(qapp)
+
+    return qapp
+
+
+def start_gui_app(backend, frontend_class, qapp_or_args=None, after_qapp_creation=None):
+    qapp = build_qapp(qapp_or_args, after_qapp_creation)
+
+    QtCore.QThread.currentThread().setObjectName('main')
+
     background_thread = QtCore.QThread()
+    background_thread.setObjectName('background')
     backend.moveToThread(background_thread)
     background_thread.start()
 
@@ -382,7 +435,7 @@ def start_gui_app(backend, frontend_class, qapp_or_args=None):
     sys.exit(qapp.exec_())
 
 
-def start_test_app(target, width=500, qapp_or_args=None):
+def start_test_app(target, width=500, qapp_or_args=None, after_qapp_creation=None):
     """Start a single window test application with a form automatically
     generated for the driver.
 
@@ -400,11 +453,7 @@ def start_test_app(target, width=500, qapp_or_args=None):
 
     """
 
-    if isinstance(qapp_or_args, QtGui.QApplication):
-        qapp = qapp_or_args
-    else:
-        qapp = QtGui.QApplication(qapp_or_args or [''])
-        qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
+    qapp = build_qapp(qapp_or_args, after_qapp_creation)
 
     if isinstance(target, (Driver, QDriver)):
         main = DriverTestWidget(None, target)
@@ -419,7 +468,7 @@ def start_test_app(target, width=500, qapp_or_args=None):
     qapp.exec_()
 
 
-def start_gui(ui_filename, drivers, qapp_or_args=None):
+def start_gui(ui_filename, drivers, qapp_or_args=None, after_qapp_creation=None):
     """Start a single window application with a form generated from
     a designer file.
 
@@ -436,12 +485,7 @@ def start_gui(ui_filename, drivers, qapp_or_args=None):
     -------
 
     """
-
-    if isinstance(qapp_or_args, QtGui.QApplication):
-        qapp = qapp_or_args
-    else:
-        qapp = QtGui.QApplication(qapp_or_args or [''])
-        qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
+    qapp = build_qapp(qapp_or_args, after_qapp_creation)
 
     main = QtGui.loadUi(ui_filename)
 
@@ -456,12 +500,8 @@ def start_gui(ui_filename, drivers, qapp_or_args=None):
     qapp.exec_()
 
 
-def start_frontend(frontend_class, qapp_or_args=None):
-    if isinstance(qapp_or_args, QtGui.QApplication):
-        qapp = qapp_or_args
-    else:
-        qapp = QtGui.QApplication(qapp_or_args or [''])
-        qapp.setWindowIcon(QtGui.QIcon(ICON_FEDORA))
+def start_frontend(frontend_class, qapp_or_args=None, after_qapp_creation=None):
+    qapp = build_qapp(qapp_or_args, after_qapp_creation)
 
     frontend = frontend_class()
     frontend.show()

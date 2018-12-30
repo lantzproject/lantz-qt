@@ -122,8 +122,8 @@ class ChartUi(Frontend):
     def plot(self, x, y):
         """Add a pair of points to the plot.
         """
-        x = float(x / self._qx)
-        y = float(y / self._qy)
+        x = x.to(self._qx).m
+        y = y.to(self._qy).m
         self._x.append(x)
         self._y.append(y)
         self.curve.setData(self._x, self._y)

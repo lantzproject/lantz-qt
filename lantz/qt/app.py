@@ -58,6 +58,7 @@ from pimpmyclass.mixins import LogMixin
 
 from lantz.core.driver import Driver, Base
 from lantz.core.flock import initialize_many, finalize_many
+from lantz.core.helpers import MISSING
 
 from .connect import connect_setup, connect_driver, connect_feat
 from .widgets import DriverTestWidget, SetupTestWidget
@@ -359,6 +360,9 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
     @classmethod
     def using_parent_backend(cls):
         return Front2Back(cls, backend_name=None)
+
+    def connect_feat(self, widget, target, feat_name=None, feat_key=MISSING):
+        return connect_feat(widget, target, feat_name, feat_key)
 
 
 class Backend(Base, ThreadLogMixin, SuperQObject, metaclass=_BackendType):

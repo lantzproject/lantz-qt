@@ -149,6 +149,11 @@ class _BackendType(MetaQObject):
         def getter(self):
             return self.instruments[key]
         def setter(self, instrument):
+            if not isinstance(instrument, QtCore.QObject):
+                raise ValueError("The object provided for InstrumentSlot '%s' is not subclass of QObject.\n"
+                                 "Maybe you forgot to wrap your driver class?\n"
+                                 "  from lantz.qt import wrap_driver_cls\n"
+                                 "  QMyDriver = wrap_driver_cls(QMyDriver)\n" % key)
             instrument.name = key
             self.instruments[key] = instrument
 
@@ -396,7 +401,7 @@ class Backend(Base, ThreadLogMixin, SuperQObject, metaclass=_BackendType):
         for key, value in instruments_and_backends.items():
             if key in inst_keys:
                 inst_keys.remove(key)
-                self.instruments[key] = value
+                setattr(self, key, value)
             elif key in flo_keys:
                 flo_keys.remove(key)
                 self.flocks[key] = value

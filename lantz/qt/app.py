@@ -85,11 +85,11 @@ class ThreadLogMixin:
             else:
                 pp = d[thid] = len(d)
 
-        self.log_debug(msg + ' %d %s (%s)' % (pp, thname, thid))
+        self.log_debug(msg + ' %s (%d-%s)' % (thname, pp, thid))
 
     def moveToThread(self, thread):
         super().moveToThread(thread)
-        self.log_current_thread('Moved to thread')
+        self.log_current_thread('Moved to thread:')
 
 
 class InstrumentSlot:
@@ -439,8 +439,6 @@ class Backend(Base, ThreadLogMixin, SuperQObject, metaclass=_BackendType):
             inst.moveToThread(thread)
         for be in self.backends.values():
             be.moveToThread(thread)
-        self.log_current_thread('Moved to thread')
-
 
 def build_qapp(qapp_or_args=None, after_func=None):
     if isinstance(qapp_or_args, QtGui.QApplication):

@@ -254,7 +254,7 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
     gui = None
 
     # connect widgets to instruments using connect_setup
-    auto_connect = True
+    auto_connect = False
 
     def __init__(self, parent=None, backend=None):
         super().__init__(parent)

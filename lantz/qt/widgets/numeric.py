@@ -76,7 +76,11 @@ class MagnitudeMixin(WidgetMixin):
         if not hasattr(self, 'setRange'):
             return
 
-        rng = self._feat.limits or (float('-inf'), float('+inf'))
+        rng = self._feat.limits
+
+        if not rng:
+            return
+
         if new_units:
             conv = lambda ndx: Q_(rng[ndx], self._feat.units).to(new_units).magnitude
         else:

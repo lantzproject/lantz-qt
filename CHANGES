@@ -6,6 +6,8 @@ Lantz Changelog
 ----------------
 
 - Extracted Qt from Lantz 0.4.dev0
+- Updated to Pyqt5.
+- Added logging capabilites to Frontend and Backend.
 
 
 0.3 (2015-02-05)

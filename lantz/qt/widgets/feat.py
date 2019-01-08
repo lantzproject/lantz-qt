@@ -120,6 +120,14 @@ class DictFeatWidget(QtGui.QWidget):
         self._value_widget._lantz_target = driver
 
     @property
+    def update_on_change(self):
+        return self._value_widget.update_on_change()
+
+    @update_on_change.setter
+    def update_on_change(self, value):
+        self._value_widget.update_on_change = value
+
+    @property
     def readable(self):
         """If the Feat associated with the widget can be read (get)."""
         return self._value_widget.readable
@@ -194,6 +202,14 @@ class LabeledFeatWidget(QtGui.QWidget):
         self._widget._update_on_change = self._widget.writable
 
         self.widgets = (self._label, self._widget, self._get, self._set)
+
+    @property
+    def update_on_change(self):
+        return self._widget.update_on_change()
+
+    @update_on_change.setter
+    def update_on_change(self, value):
+        self._widget.update_on_change = value
 
     @property
     def feat(self):

@@ -155,7 +155,7 @@ class DriverTestWidget(QtGui.QWidget):
         """
 
         for widget in self.writable_widgets:
-            widget._widget._update_on_change = new_state
+            widget.update_on_change = new_state
 
     def widgets_values_as_dict(self):
         return {widget.feat.name: widget._widget._as_update_value()

@@ -84,6 +84,8 @@ class WidgetMixin(object):
     #: Dictionary linking Widget types with the function to patch them
     _WRAPPERS = {}
 
+    _update_on_change = False
+
     def keyPressEvent(self, event):
         """When 'u' is pressed, request new units.
         When 'r' is pressed, get new value from the driver.
@@ -133,6 +135,14 @@ class WidgetMixin(object):
             getattr(self._lantz_target, self.feat.name)[self._feat_key] = self.value()
         else:
             setattr(self._lantz_target, self.feat.name, self.value())
+
+    @property
+    def update_on_change(self):
+        return self._update_on_change
+
+    @update_on_change.setter
+    def update_on_change(self, value):
+        self._update_on_change = value
 
     @property
     def readable(self):

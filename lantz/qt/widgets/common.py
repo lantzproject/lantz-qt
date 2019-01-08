@@ -98,6 +98,10 @@ class WidgetMixin(object):
         """Get widget value."""
         return super().value()
 
+    def _as_update_value(self):
+        # TODO: it would be nice to remove this.
+        return self.value()
+
     def setValue(self, value):
         """Set widget value.
         """

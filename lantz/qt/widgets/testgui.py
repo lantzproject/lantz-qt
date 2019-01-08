@@ -158,8 +158,7 @@ class DriverTestWidget(QtGui.QWidget):
             widget._widget._update_on_change = new_state
 
     def widgets_values_as_dict(self):
-
-        return {widget.feat.name: widget._widget.value()
+        return {widget.feat.name: widget._widget._as_update_value()
                 for widget in self.writable_widgets}
 
     @property

@@ -135,6 +135,15 @@ class DictFeatWidget(QtGui.QWidget):
     def value_to_feat(self):
         return self._value_widget.value_to_feat()
 
+    @property
+    def feat(self):
+        return self._value_widget.feat
+
+    def _as_update_value(self):
+        # TODO: it would be nice to change this to `value`.
+        return {self._value_widget.feat_key: self._value_widget.value()}
+
+
 class LabeledFeatWidget(QtGui.QWidget):
     """Widget containing a label, a control, and a get a set button.
 

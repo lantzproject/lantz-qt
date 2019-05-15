@@ -30,6 +30,9 @@ class MagnitudeMixin(WidgetMixin):
 
     _WRAPPED = (QtGui.QDoubleSpinBox, QtGui.QSpinBox)
 
+    abbreviated_units = True
+    pretty_units = False
+
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
         if self._units and event.text() == 'u':
@@ -62,7 +65,20 @@ class MagnitudeMixin(WidgetMixin):
             return None
         else:
             if hasattr(self, 'setSuffix'):
-               self.setSuffix(' ' + str(new_units.units))
+                if self.abbreviated_units:
+                    fmt = '~'
+                else:
+                    fmt = ''
+
+                if self.pretty_units:
+                    fmt += 'P'
+
+                if fmt:
+                    fmt = '{:%s}' % fmt
+                else:
+                    fmt = '{}'
+
+                self.setSuffix(' ' + fmt.format(new_units.units))
 
             self.change_limits(new_units)
             self._units = new_units

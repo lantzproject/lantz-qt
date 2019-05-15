@@ -346,13 +346,13 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
 
     @backend.setter
     def backend(self, backend):
-        if self._backend:
+        if self._backend is not None:
             self.log_debug('disconnecting backend: {}'.format(backend))
             self.disconnect(backend)
 
         self._backend = backend
 
-        if backend:
+        if backend is not None:
             self.log_debug('connecting backend: {}'.format(backend))
             if self.auto_connect:
                 connect_setup(self.widget, backend.instruments.values())

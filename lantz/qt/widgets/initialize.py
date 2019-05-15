@@ -25,9 +25,9 @@ class InitializeWindow(QtGui.QWidget):
 
     def initialize(self):
         from ..connect import connect_initialize
-        self.thread = connect_initialize(self.widget, self.drivers,
-                                         dependencies=self.dependencies,
-                                         concurrent=True)
+        self.thread, self.helper = connect_initialize(self.widget, self.drivers,
+                                                      dependencies=self.dependencies,
+                                                      concurrent=True)
 
     def createGUI(self):
 
@@ -79,11 +79,23 @@ class InitializeDialog(QtGui.QDialog):
 
         self.createGUI()
 
+    def finished_ok(self):
+        self.ok_cancel_buttons.setEnabled(True)
+        self.ok_cancel_buttons.button(QtGui.QDialogButtonBox.Ok).setEnabled(True)
+        self.ok_cancel_buttons.button(QtGui.QDialogButtonBox.Ok).setFocus()
+
+    def exception_occurred(self):
+        self.ok_cancel_buttons.setEnabled(True)
+        self.ok_cancel_buttons.button(QtGui.QDialogButtonBox.Ok).setEnabled(False)
+        self.ok_cancel_buttons.button(QtGui.QDialogButtonBox.Cancel).setFocus()
+
     def initialize(self):
         from ..connect import connect_initialize
-        connect_initialize(self.widget, self.drivers,
-                           dependencies=self.dependencies,
-                           concurrent=self.concurrent)
+        self.thread, self.helper = connect_initialize(self.widget, self.drivers,
+                                                      dependencies=self.dependencies,
+                                                      concurrent=self.concurrent)
+        self.helper.finished.connect(self.finished_ok)
+        self.helper.exception.connect(self.exception_occurred)
 
     def exec_(self):
         self.show()
@@ -126,7 +138,10 @@ class InitializeDialog(QtGui.QDialog):
             1, self)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
+        buttons.setEnabled(False)
         layout.addWidget(buttons)
+
+        self.ok_cancel_buttons = buttons
 
         self.setLayout(layout)
 

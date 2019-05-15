@@ -71,6 +71,7 @@ def connect_feat(widget, target, feat_name=None, feat_key=MISSING):
     widget.feat_key = feat_key
 
     widget.lantz_target = target
+    widget.setValue(widget.value_from_feat())
 
 
 def connect_driver(parent, target, *, prefix='', sep='__'):
@@ -290,7 +291,7 @@ def connect_initialize(widget, drivers, register_finalizer=True,
     helper.finished.connect(_done)
 
     thread.start()
-    return thread
+    return thread, helper
 
 
 class InitializerHelper(QtCore.QObject):

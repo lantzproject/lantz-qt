@@ -200,7 +200,7 @@ class WidgetMixin(object):
             self._feat_signal.disconnect(self.on_feat_value_changed)
             self.valueChanged.disconnect()
 
-        if target:
+        if target is not None:
             self._lantz_target = target
 
             self._feat_signal = getattr(self._lantz_target, self._feat.name + '_changed')

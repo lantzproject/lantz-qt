@@ -313,9 +313,10 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
                     else:
                         # Is in an attribute
                         try:
-                            widget = cls(backend=getattr(backend, sub_backend_name))
+                            sub_backend=getattr(backend, sub_backend_name)
                         except AttributeError:
                             raise ValueError("{} ({}) requires a '{}' attribute which is not provided by {}".format(name, cls, sub_backend_name, backend))
+                        widget = cls(backend=sub_backend)
                         self.log_debug('{} ({}) connected to backend.{}'.format(name, cls, sub_backend_name))
             else:
                 # This backend does not declare a required backend

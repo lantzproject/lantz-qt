@@ -16,7 +16,7 @@ long_description = '\n\n'.join([read('README'),
 __doc__ = long_description
 
 setup(name='lantz-qt',
-      version='0.5.3.dev0',
+      version='0.5.3',
       license='BSD',
       description='Instrumentation framework',
       long_description=long_description,

@@ -5,6 +5,7 @@ Lantz Changelog
 0.5.3 (unreleased)
 ------------------
 
+- Added pinned protocol to Backend moveToThread
 - Add option to show pretty / abbreviated units in widget.
 - Fixed several bugs.
 

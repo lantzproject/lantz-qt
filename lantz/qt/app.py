@@ -440,6 +440,8 @@ class Backend(Base, ThreadLogMixin, SuperQObject, metaclass=_BackendType):
         QtCore.QTimer.singleShot(0, lambda: func(*args, **kwargs))
 
     def moveToThread(self, thread):
+        if self.thread().objectName().startswith('pinned-'):
+            return
         super().moveToThread(thread)
         for inst in self.instruments.values():
             inst.moveToThread(thread)

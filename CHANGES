@@ -5,8 +5,8 @@ Lantz Changelog
 0.5.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Add option to show pretty / abbreviated units in widget.
+- Fixed several bugs.
 
 0.5.2 (2019-01-21)
 ------------------

@@ -275,12 +275,13 @@ class Frontend(LogMixin, ThreadLogMixin, QtGui.QMainWindow, metaclass=_FrontendT
                 else:
                     filename = os.path.join(filename, self.gui)
                 if os.path.exists(filename):
-                    self.log_debug('loading gui file {}'.format(filename))
-                    self.widget = QtGui.loadUi(filename)
                     if isinstance(self.widget, QtGui.QMainWindow):
-                        QtGui.loadUi(filename, self)
-                        break
-                    self.setCentralWidget(self.widget)
+                        self.log_debug('loading gui file {} as Main Window'.format(filename))
+                        self.widget = QtGui.loadUi(filename, self)
+                    else:
+                        self.log_debug('loading gui file {} in Main Window'.format(filename))
+                        self.widget = QtGui.loadUi(filename)
+                        self.setCentralWidget(self.widget)
                     break
             else:
                 raise ValueError('{}: loading gui file {}'.format(self, self.gui))

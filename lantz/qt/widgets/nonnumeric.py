@@ -48,6 +48,8 @@ class QComboBoxMixin(WidgetMixin):
         super().bind_feat(feat)
         if isinstance(self._feat.values, dict):
             self.__values = list(self._feat.values.keys())
+        elif isinstance(self._feat.values, set):
+            self.__values = list(self._feat.values)
         else:
             self.__values = list(self.__values)
         self.clear()

@@ -31,7 +31,7 @@ class QComboBoxMixin(WidgetMixin):
         widget.valueChanged = widget.currentIndexChanged
 
     def value(self):
-        return self.currentText()
+        return self.__values_dict[self.currentText()]
 
     def setValue(self, value):
         if value is MISSING or value is UNSET:
@@ -48,10 +48,9 @@ class QComboBoxMixin(WidgetMixin):
         super().bind_feat(feat)
         if isinstance(self._feat.values, dict):
             self.__values = list(self._feat.values.keys())
-        elif isinstance(self._feat.values, set):
-            self.__values = list(self._feat.values)
         else:
-            self.__values = list(self.__values)
+            self.__values = list(self._feat.values)
+        self.__values_dict = dict([(str(value), value) for value in self.__values])
         self.clear()
         self.addItems([str(value) for value in self.__values])
 
